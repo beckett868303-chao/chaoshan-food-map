@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>潮汕美食地图</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Serif SC', 'Playfair Display', serif;
+            background-color: #F9F6F0;
+            color: #333333;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        /* 标题区 */
+        .hero-section {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem 0;
+        }
+        
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #333333;
+            letter-spacing: 0.05em;
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: #666666;
+            font-weight: 400;
+            letter-spacing: 0.03em;
+        }
+        
+        /* 胶片控制按钮 */
+        .film-controls {
+            position: fixed;
+            top: 50%;
+            left: 0;
+            right: 0;
+            transform: translateY(-50%);
+            display: flex;
+            justify-content: space-between;
+            padding: 0 2rem;
+            z-index: 3000;
+            pointer-events: none;
+        }
+        
+        .control-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid #E1E1E1;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+            z-index: 3001;
+            pointer-events: auto;
+        }
+        
+        .control-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+        }
+        
+        .control-btn:active {
+            transform: scale(0.95);
+        }
+        
+        /* 双行胶片容器 */
+        .dual-film-container {
+            position: relative;
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
+            gap: 3rem;
+            overflow: hidden;
+        }
+        
+        /* 胶片行 */
+        .film-row {
+            position: relative;
+            height: 45%;
+            overflow: hidden;
+            z-index: 1;
+        }
+        
+        /* 确保悬停效果能正确触发 */
+        .film-row:hover .film-strip {
+            animation-play-state: paused !important;
+        }
+        
+        /* 胶片带 */
+        .film-strip {
+            display: flex;
+            height: 100%;
+            width: fit-content;
+        }
+        
+        /* 第一行向左滚动 */
+        .film-row:nth-child(1) .film-strip {
+            animation: scrollLeft 300s linear infinite;
+        }
+        
+        /* 第二行向右滚动 */
+        .film-row:nth-child(2) .film-strip {
+            animation: scrollRight 300s linear infinite;
+        }
+        
+        /* 无限滚动动画 - 向左 */
+        @keyframes scrollLeft {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+        
+        /* 无限滚动动画 - 向右 */
+        @keyframes scrollRight {
+            0% {
+                transform: translateX(-50%);
+            }
+            100% {
+                transform: translateX(0);
+            }
+        }
+        
+        /* 鼠标悬停时暂停滚动 */
+        .film-row:hover .film-strip {
+            animation-play-state: paused;
+        }
+        
+        /* 美食卡片 */
+        .food-card {
+            flex: 0 0 280px;
+            height: 340px;
+            margin: 0 15px;
+            background: #FFFFFF;
+            border-radius: 16px;
+            border: 1px solid #F0F0F0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        
+        .food-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* 美食图片 */
+        .food-image {
+            width: 100%;
+            height: 200px;
+            background-size: cover;
+            background-position: center;
+            border-bottom: 1px solid #F0F0F0;
+            position: relative;
+        }
+        
+        .food-image::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .food-card:hover .food-image::after {
+            opacity: 1;
+        }
+        
+        /* 卡片信息 */
+        .food-info {
+            padding: 1.5rem;
+        }
+        
+        /* 卡片悬停浮窗样式 */
+        .card-tooltip {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 1.5rem;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            pointer-events: auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .food-card:hover .card-tooltip {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        .card-tooltip-content h4 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.1rem;
+            color: white;
+        }
+        
+        .card-tooltip-content p {
+            margin: 0 0 1rem 0;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.4;
+        }
+        
+        .card-tooltip-content .btn-more {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            align-self: flex-start;
+        }
+        
+        .card-tooltip-content .btn-more:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .food-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #333333;
+            font-family: 'Playfair Display', serif;
+            white-space: normal;
+            text-align: center;
+        }
+        
+        .food-description {
+            font-size: 0.9rem;
+            color: #666666;
+            line-height: 1.4;
+            height: 48px;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+        
+        /* 百科弹窗 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 4000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: #FFFFFF;
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666666;
+            transition: transform 0.2s ease;
+        }
+        
+        .modal-close:hover {
+            transform: scale(1.1);
+        }
+        
+        .modal-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: #333333;
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .modal-image {
+            width: 100%;
+            height: 300px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .modal-description {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #555555;
+            margin-bottom: 1.5rem;
+        }
+        
+        .modal-rating {
+            display: flex;
+            align-items: center;
+            margin-top: 1rem;
+        }
+        
+        .rating-label {
+            font-weight: 600;
+            margin-right: 1rem;
+            color: #333333;
+        }
+        
+        .rating-stars {
+            display: flex;
+        }
+        
+        .star {
+            color: #FFD700;
+            font-size: 1.2rem;
+            margin-right: 0.2rem;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .food-card {
+                flex: 0 0 200px;
+                height: 280px;
+            }
+            
+            .food-image {
+                height: 160px;
+            }
+            
+            .film-controls {
+                padding: 0 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 标题区 -->
+        <section class="hero-section">
+            <h1 class="hero-title">潮汕美食地图</h1>
+            <p class="hero-subtitle">探索潮汕地区的传统美食文化</p>
+        </section>
+        
+        <!-- 胶片控制按钮 -->
+        <div class="film-controls">
+            <button class="control-btn" id="prevBtn" onclick="scrollLeft()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            </button>
+            <button class="control-btn" id="nextBtn" onclick="scrollRight()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
+        </div>
+        
+        <!-- 双行胶片容器 -->
+        <div class="dual-film-container">
+            <!-- 第一行胶片 -->
+            <div class="film-row">
+                <div class="film-strip" id="filmStrip1">
+                    <!-- 卡片将通过JavaScript动态生成 -->
+                </div>
+            </div>
+            
+            <!-- 第二行胶片 -->
+            <div class="film-row">
+                <div class="film-strip" id="filmStrip2">
+                    <!-- 卡片将通过JavaScript动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 百科弹窗 -->
+    <div class="modal" id="foodModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <h2 class="modal-title" id="modalTitle"></h2>
+            <div class="modal-image" id="modalImage"></div>
+            <p class="modal-description" id="modalDescription"></p>
+            <div class="modal-rating">
+                <span class="rating-label">推荐指数：</span>
+                <div class="rating-stars" id="ratingStars"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 美食数据 - 从图片文件名自动生成
+        const foodImages = [
+            "五花肉", "卤大肠", "卤豆干", "卤鸡爪", "卤鹅肝",
+            "叉烧肉", "大红虾", "春卷", "海鲜粥", "炒牛肉面",
+            "炸豆干", "烤肠", "烧卖", "烧鹅", "烧鹅腿",
+            "煲仔饭", "牛杂火锅", "牛杂粉", "牛百叶", "牛肉丸",
+            "牛肉火锅", "牛肉面", "甜汤", "生腌皮皮虾", "生腌虾",
+            "肠粉", "草果", "萝卜牛腩", "萝卜糕", "蒸鱼",
+            "虾饺", "蚝仔煎", "血蛤", "豆花", "鱼丸",
+            "鱼生", "鱼饭螃蟹", "鲜牛肉", "鸭捻"
+        ];
+        
+        // 美食数据对象 - 从CSV加载
+        const foodData = {};
+        
+        // 美食简介 - 潮汕话描述
+        const foodDescriptions = {
+            "五花肉": "肥瘦相间，入口即化，潮汕传统美食。",
+            "卤大肠": "卤香浓郁，口感弹牙，潮汕卤味代表。",
+            "卤豆干": "豆香醇厚，卤味十足，潮汕经典小吃。",
+            "卤鸡爪": "皮糯肉嫩，卤香扑鼻，潮汕下酒佳品。",
+            "卤鹅肝": "细腻柔滑，入口即化，潮汕卤味珍品。",
+            "叉烧肉": "甜咸适中，肉质松软，潮汕特色烧烤。",
+            "大红虾": "新鲜饱满，肉质鲜美，潮汕海鲜代表。",
+            "春卷": "外酥内嫩，馅料丰富，潮汕传统小吃。",
+            "海鲜粥": "粥米软糯，海鲜鲜甜，潮汕特色美食。",
+            "炒牛肉面": "面条劲道，牛肉鲜嫩，潮汕经典面食。",
+            "炸豆干": "外酥内嫩，豆香浓郁，潮汕传统小吃。",
+            "烤肠": "香气四溢，口感Q弹，潮汕特色烧烤。",
+            "烧卖": "皮薄馅多，口感丰富，潮汕传统点心。",
+            "烧鹅": "皮脆肉嫩，鹅香浓郁，潮汕传统名菜。",
+            "烧鹅腿": "肉质饱满，皮脆肉嫩，烧鹅精华部分。",
+            "煲仔饭": "饭香扑鼻，锅巴酥脆，潮汕特色美食。",
+            "牛杂火锅": "牛杂鲜嫩，汤底浓郁，潮汕特色火锅。",
+            "牛杂粉": "粉条劲道，牛杂鲜美，潮汕传统小吃。",
+            "牛百叶": "口感脆爽，营养丰富，潮汕火锅食材。",
+            "牛肉丸": "手工捶打，Q弹爆汁，潮汕传统名吃。",
+            "牛肉火锅": "现切牛肉，汤底鲜美，潮汕特色美食。",
+            "牛肉面": "面条劲道，牛肉香嫩，潮汕经典面食。",
+            "甜汤": "清甜可口，滋润养人，潮汕传统甜品。",
+            "生腌皮皮虾": "鲜爽可口，风味独特，潮汕特色美食。",
+            "生腌虾": "新鲜美味，口感清爽，潮汕特色美食。",
+            "肠粉": "皮薄馅嫩，口感细腻，潮汕传统早餐。",
+            "草果": "清凉解暑，口感独特，潮汕传统小吃。",
+            "萝卜牛腩": "萝卜清甜，牛腩软烂，潮汕传统美食。",
+            "萝卜糕": "口感软糯，香气四溢，潮汕传统小吃。",
+            "蒸鱼": "肉质鲜嫩，原汁原味，潮汕传统名菜。",
+            "虾饺": "皮薄馅鲜，口感丰富，潮汕传统点心。",
+            "蚝仔煎": "外酥内嫩，鲜香味美，潮汕传统小吃。",
+            "血蛤": "肉质鲜嫩，营养丰富，潮汕特色海鲜。",
+            "豆花": "口感嫩滑，清甜可口，潮汕传统甜品。",
+            "鱼丸": "Q弹爽口，鲜味十足，潮汕传统名吃。",
+            "鱼生": "肉质鲜嫩，口感清爽，潮汕特色美食。",
+            "鱼饭螃蟹": "新鲜美味，营养丰富，潮汕特色海鲜。",
+            "鲜牛肉": "肉质鲜嫩，营养丰富，潮汕牛肉火锅食材。",
+            "鸭捻": "口感软糯，甜而不腻，潮汕传统甜品。"
+        };
+        
+        // 美食详细介绍
+        const foodDetails = {
+            "五花肉": "潮汕五花肉以肥瘦相间、层次分明著称。选用优质猪五花肉，经过精心处理后，或卤制、或烧烤，成品肥而不腻，入口即化，是潮汕地区的传统美食之一。",
+            "卤大肠": "潮汕卤大肠是潮汕卤味的代表之一。选用新鲜猪大肠，经过反复清洗后，放入特制卤汁中慢火卤制而成。成品卤香浓郁，口感弹牙，是潮汕人喜爱的下酒菜。",
+            "卤豆干": "潮汕卤豆干以本地优质黄豆为原料，经过传统工艺制作成豆干后，放入特制卤汁中卤制而成。成品豆香醇厚，卤味十足，是潮汕地区的经典小吃。",
+            "卤鸡爪": "潮汕卤鸡爪选用新鲜鸡爪，经过处理后放入特制卤汁中卤制而成。成品皮糯肉嫩，卤香扑鼻，是潮汕人喜爱的下酒菜和休闲小吃。",
+            "卤鹅肝": "潮汕卤鹅肝选用新鲜鹅肝，经过处理后放入特制卤汁中卤制而成。成品细腻柔滑，入口即化，是潮汕卤味中的珍品。",
+            "叉烧肉": "潮汕叉烧肉选用优质猪肉，经过腌制后用木炭烤制而成。成品甜咸适中，肉质松软，香气四溢，是潮汕地区的特色烧烤。",
+            "大红虾": "潮汕大红虾以新鲜饱满、肉质鲜美著称。选用当地海域的新鲜大红虾，或清蒸、或白灼，保持原汁原味，是潮汕海鲜的代表。",
+            "春卷": "潮汕春卷以薄如蝉翼的春卷皮包裹丰富的馅料，油炸至金黄酥脆而成。成品外酥内嫩，馅料丰富，是潮汕地区的传统小吃。",
+            "海鲜粥": "潮汕海鲜粥以大米和新鲜海鲜为原料，用砂锅慢火熬制而成。成品粥米软糯，海鲜鲜甜，是潮汕地区的特色美食。",
+            "炒牛肉面": "潮汕炒牛肉面以手工面条和新鲜牛肉为原料，配以各种调料炒制而成。成品面条劲道，牛肉鲜嫩，是潮汕地区的经典面食。",
+            "炸豆干": "潮汕炸豆干以本地优质黄豆为原料，经过传统工艺制作成豆干后，油炸至金黄酥脆而成。成品外酥内嫩，豆香浓郁，是潮汕地区的传统小吃。",
+            "烤肠": "潮汕烤肠以优质猪肉为原料，经过腌制后灌入肠衣，用木炭烤制而成。成品香气四溢，口感Q弹，是潮汕地区的特色烧烤。",
+            "烧卖": "潮汕烧卖以薄皮包裹丰富的馅料，蒸制而成。成品皮薄馅多，口感丰富，是潮汕地区的传统点心。",
+            "烧鹅": "潮汕烧鹅选用当地散养的狮头鹅，经过腌制后用木炭烤制而成。成品皮脆肉嫩，鹅香浓郁，是潮汕地区的传统名菜。",
+            "烧鹅腿": "潮汕烧鹅腿是烧鹅中的精华部分，选用狮头鹅的大腿，经过腌制后烤制而成。成品肉质饱满，皮脆肉嫩，是潮汕地区的特色美食。",
+            "煲仔饭": "潮汕煲仔饭以优质大米和各种配料为原料，用砂锅慢火煲制而成。成品饭香扑鼻，锅巴酥脆，是潮汕地区的特色美食。",
+            "牛杂火锅": "潮汕牛杂火锅以新鲜牛杂和牛骨汤为原料，配以各种调料而成。成品牛杂鲜嫩，汤底浓郁，是潮汕地区的特色火锅。",
+            "牛杂粉": "潮汕牛杂粉以手工粉条和新鲜牛杂为原料，配以牛骨汤而成。成品粉条劲道，牛杂鲜美，是潮汕地区的传统小吃。",
+            "牛百叶": "潮汕牛百叶选用新鲜牛百叶，经过处理后用于火锅或凉拌。成品口感脆爽，营养丰富，是潮汕火锅的常见食材。",
+            "牛肉丸": "潮汕牛肉丸以新鲜牛肉为原料，经过手工捶打至起胶，挤成丸子煮熟而成。成品Q弹爆汁，鲜脆爽口，是潮汕地区的传统名吃。",
+            "牛肉火锅": "潮汕牛肉火锅以现切牛肉和牛骨汤为原料，配以各种调料而成。成品牛肉鲜嫩，汤底鲜美，是潮汕地区的特色美食。",
+            "牛肉面": "潮汕牛肉面以手工面条和新鲜牛肉为原料，配以牛骨汤而成。成品面条劲道，牛肉香嫩，是潮汕地区的经典面食。",
+            "甜汤": "潮汕甜汤以各种豆类、芋头等为原料，煮成糖水而成。成品清甜可口，滋润养人，是潮汕地区的传统甜品。",
+            "生腌皮皮虾": "潮汕生腌皮皮虾以新鲜皮皮虾为原料，用盐、醋、辣椒等腌制而成。成品鲜爽可口，风味独特，是潮汕地区的特色美食。",
+            "生腌虾": "潮汕生腌虾以新鲜虾为原料，用盐、醋、辣椒等腌制而成。成品新鲜美味，口感清爽，是潮汕地区的特色美食。",
+            "肠粉": "潮汕肠粉以米浆蒸制而成，薄如蝉翼，搭配鲜虾、猪肉等馅料，淋上特制卤汁而成。成品口感细腻，是潮汕地区的传统早餐。",
+            "草果": "潮汕草果以草果粉为原料，制成凝胶状，配以糖水而成。成品清凉解暑，口感独特，是潮汕地区的传统小吃。",
+            "萝卜牛腩": "潮汕萝卜牛腩以白萝卜和牛腩为原料，慢火炖制而成。成品萝卜清甜，牛腩软烂，是潮汕地区的传统美食。",
+            "萝卜糕": "潮汕萝卜糕以白萝卜、大米粉为原料，蒸制而成。成品口感软糯，香气四溢，是潮汕地区的传统小吃。",
+            "蒸鱼": "潮汕蒸鱼以新鲜鱼为原料，配以姜、葱等调料清蒸而成。成品肉质鲜嫩，原汁原味，是潮汕地区的传统名菜。",
+            "虾饺": "潮汕虾饺以薄皮包裹新鲜虾肉，蒸制而成。成品皮薄馅鲜，口感丰富，是潮汕地区的传统点心。",
+            "蚝仔煎": "潮汕蚝仔煎以新鲜蚝仔、鸡蛋、薯粉为原料，煎至金黄酥脆而成。成品外酥内嫩，鲜香味美，是潮汕地区的传统小吃。",
+            "血蛤": "潮汕血蛤以新鲜血蛤为原料，用开水焯熟后食用。成品肉质鲜嫩，营养丰富，是潮汕地区的特色海鲜。",
+            "豆花": "潮汕豆花以黄豆为原料，制成豆腐花后配以糖水而成。成品口感嫩滑，清甜可口，是潮汕地区的传统甜品。",
+            "鱼丸": "潮汕鱼丸以新鲜鱼肉为原料，经过手工捶打至起胶，挤成丸子煮熟而成。成品Q弹爽口，鲜味十足，是潮汕地区的传统名吃。",
+            "鱼生": "潮汕鱼生以新鲜草鱼为原料，切成薄片，搭配姜、葱、花生等配料，蘸上普宁豆酱食用。成品肉质鲜嫩，口感清爽，是潮汕地区的特色美食。",
+            "鱼饭螃蟹": "潮汕鱼饭螃蟹以新鲜螃蟹为原料，用盐水煮熟而成。成品新鲜美味，营养丰富，是潮汕地区的特色海鲜。",
+            "鲜牛肉": "潮汕鲜牛肉以本地黄牛肉为原料，现切现吃。成品肉质鲜嫩，营养丰富，是潮汕牛肉火锅的主要食材。",
+            "鸭捻": "潮汕鸭捻以糯米粉为原料，包入花生、芝麻等馅料，煮制而成。成品口感软糯，甜而不腻，是潮汕地区的传统甜品。"
+        };
+        
+        // 读取CSV文件并解析数据
+        function loadFoodData() {
+            fetch('food list.csv')
+                .then(response => response.text())
+                .then(data => {
+                    const lines = data.split('\n');
+                    lines.forEach((line, index) => {
+                        if (index > 0 && line.trim()) {
+                            const [name, description, link] = line.split(',');
+                            if (name) {
+                                foodData[name] = {
+                                    description: description || '',
+                                    link: link || ''
+                                };
+                            }
+                        }
+                    });
+                    generateFoodCards();
+                })
+                .catch(error => {
+                    console.error('Error loading CSV file:', error);
+                    // 如果CSV加载失败，使用默认数据
+                    generateFoodCards();
+                });
+        }
+        
+        // 生成美食卡片
+        function generateFoodCards() {
+            const filmStrip1 = document.getElementById('filmStrip1');
+            const filmStrip2 = document.getElementById('filmStrip2');
+            
+            // 清空胶片带
+            filmStrip1.innerHTML = '';
+            filmStrip2.innerHTML = '';
+            
+            // 生成卡片并添加到胶片带
+            foodImages.forEach(foodName => {
+                // 创建卡片
+                const card = document.createElement('div');
+                card.className = 'food-card';
+                card.onclick = () => openModal(foodName);
+                
+                // 获取简介，如果没有则生成潮汕话描述
+                const description = foodDescriptions[foodName] || getRandomDescription();
+                
+                // 获取CSV中的详细信息和链接
+                const csvDescription = foodData[foodName]?.description || '';
+                const csvLink = foodData[foodName]?.link || '';
+                
+                // 添加图片和信息
+                card.innerHTML = `
+                    <div class="food-image" style="background-image: url('images_food/${foodName}.png');" onerror="this.style.backgroundImage='url(https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=chinese%20food%20icon&image_size=square)';"></div>
+                    <div class="food-info">
+                        <h3 class="food-title">${foodName}</h3>
+                        <p class="food-description">${description}</p>
+                    </div>
+                    <div class="card-tooltip">
+                        <div class="card-tooltip-content">
+                            <h4>${foodName}</h4>
+                            <p>${csvDescription || foodDetails[foodName] || '暂无详细介绍'}</p>
+                            ${csvLink ? `<a href="${csvLink}" target="_blank" class="btn-more" onclick="event.stopPropagation();">了解更多</a>` : ''}
+                        </div>
+                    </div>
+                `;
+                
+                // 克隆卡片并添加到两个胶片带
+                filmStrip1.appendChild(card.cloneNode(true));
+                filmStrip2.appendChild(card.cloneNode(true));
+            });
+            
+            // 再次克隆所有卡片，确保滚动效果
+            const cards1 = filmStrip1.querySelectorAll('.food-card');
+            cards1.forEach(card => {
+                filmStrip1.appendChild(card.cloneNode(true));
+            });
+            
+            const cards2 = filmStrip2.querySelectorAll('.food-card');
+            cards2.forEach(card => {
+                filmStrip2.appendChild(card.cloneNode(true));
+            });
+        }
+        
+        // 生成随机潮汕话描述
+        function getRandomDescription() {
+            const descriptions = [
+                '食过返寻味',
+                '鲜到无朋友',
+                '正斗潮汕味',
+                '地道潮汕美食',
+                '传统工艺制作',
+                '潮汕人嘅最爱',
+                '回味无穷',
+                '齿颊留香',
+                '经典潮汕小吃',
+                '原汁原味'
+            ];
+            return descriptions[Math.floor(Math.random() * descriptions.length)];
+        }
+        
+        // 打开百科弹窗
+        function openModal(foodName) {
+            const modal = document.getElementById('foodModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalImage = document.getElementById('modalImage');
+            const modalDescription = document.getElementById('modalDescription');
+            const ratingStars = document.getElementById('ratingStars');
+            
+            modalTitle.textContent = foodName;
+            modalImage.style.backgroundImage = `url('images_food/${foodName}.png')`;
+            modalImage.onerror = function() {
+                this.style.backgroundImage = 'url(https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=chinese%20food%20icon&image_size=square)';
+            };
+            modalDescription.textContent = foodDetails[foodName] || '潮汕传统美食，历史悠久，风味独特。';
+            
+            // 生成随机推荐指数（4-5星）
+            const rating = Math.floor(Math.random() * 2) + 4;
+            ratingStars.innerHTML = '';
+            for (let i = 0; i < 5; i++) {
+                const star = document.createElement('span');
+                star.className = 'star';
+                star.textContent = i < rating ? '★' : '☆';
+                ratingStars.appendChild(star);
+            }
+            
+            modal.style.display = 'flex';
+        }
+        
+        // 关闭百科弹窗
+        function closeModal() {
+            document.getElementById('foodModal').style.display = 'none';
+        }
+        
+        // 加速滚动
+        function speedUpScroll() {
+            const filmStrip1 = document.getElementById('filmStrip1');
+            const filmStrip2 = document.getElementById('filmStrip2');
+            
+            // 加速为原速度的5倍
+            filmStrip1.style.animationDuration = '60s';
+            filmStrip2.style.animationDuration = '60s';
+            
+            // 2秒后开始逐渐恢复原速度
+            setTimeout(() => {
+                // 5秒内平滑减速到正常速度
+                let currentTime = 60;
+                const targetTime = 300;
+                const duration = 5000; // 5秒
+                const steps = 50;
+                const stepTime = duration / steps;
+                const timeStep = (targetTime - currentTime) / steps;
+                
+                let step = 0;
+                const interval = setInterval(() => {
+                    step++;
+                    currentTime += timeStep;
+                    if (step <= steps) {
+                        filmStrip1.style.animationDuration = currentTime + 's';
+                        filmStrip2.style.animationDuration = currentTime + 's';
+                    } else {
+                        clearInterval(interval);
+                    }
+                }, stepTime);
+            }, 2000);
+        }
+        
+        // 向右滚动
+        function scrollRight() {
+            // 直接调用加速函数
+            speedUpScroll();
+        }
+        
+        // 向左滚动
+        function scrollLeft() {
+            // 直接调用加速函数
+            speedUpScroll();
+        }
+        
+        // 点击弹窗外部关闭
+        window.onclick = function(event) {
+            const modal = document.getElementById('foodModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 加载CSV数据并生成美食卡片
+            loadFoodData();
+            
+            // 初始化 Lucide 图标
+            lucide.createIcons();
+        });
+    </script>
+</body>
+</html>
