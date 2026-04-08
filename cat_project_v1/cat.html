@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我和奔奔一起长大</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">我和奔奔</div>
+            <ul class="nav-links">
+                <li><a href="#home">首页</a></li>
+                <li><a href="#about-b奔奔">关于奔奔</a></li>
+                <li><a href="#diary">成长日记</a></li>
+                <li><a href="#gallery">照片墙</a></li>
+                <li><a href="#about-me">关于我</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <!-- 首页大图区 -->
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <h1>我和奔奔一起长大</h1>
+            <p>我10岁，奔奔4个月，我们每天都在变棒～</p>
+            <div class="hero-image">
+                <img src="cat_top.png" alt="我和奔奔">
+            </div>
+        </div>
+    </section>
+    
+    <!-- 关于奔奔 -->
+    <section id="about-b奔奔" class="about-b奔奔">
+        <div class="container">
+            <h2 class="section-title">关于奔奔</h2>
+            <div class="about-card">
+                <h3>🐱 奔奔的小档案</h3>
+                <p><strong>名字：</strong>奔奔</p>
+                <p><strong>年龄：</strong>4个月</p>
+                <p><strong>品种：</strong>小奶猫</p>
+                <p><strong>性格：</strong>调皮、爱睡觉、有点胆小、超级可爱</p>
+                <p><strong>爱好：</strong>吃猫粮、玩毛线球、趴在我脚边</p>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 成长日记 -->
+    <section id="diary" class="diary">
+        <div class="container">
+            <h2 class="section-title">成长日记</h2>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-card">
+                        <h4>第1个月</h4>
+                        <p>奔奔来到我家，小小的、软软的，像个小毛球。</p>
+                    </div>
+                    <div class="timeline-dot"></div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-card">
+                        <h4>第2个月</h4>
+                        <p>会跑会跳，开始调皮，到处探索家里的每个角落。</p>
+                    </div>
+                    <div class="timeline-dot"></div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-card">
+                        <h4>第3个月</h4>
+                        <p>学会用猫砂，爱蹭我，开始和我互动玩耍。</p>
+                    </div>
+                    <div class="timeline-dot"></div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-card">
+                        <h4>第4个月</h4>
+                        <p>现在的奔奔，每天陪我写作业，是我的小助手。</p>
+                    </div>
+                    <div class="timeline-dot"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 照片墙 -->
+    <section id="gallery" class="photo-gallery">
+        <div class="container">
+            <h2 class="section-title">照片墙</h2>
+            <div class="gallery-grid">
+                <div class="gallery-item" onclick="openLightbox('https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=cute%20orange%20kitten%20sleeping%2C%20cartoon%20style%2C%20warm%20colors&image_size=square')">
+                    <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=cute%20orange%20kitten%20sleeping%2C%20cartoon%20style%2C%20warm%20colors&image_size=square" alt="奔奔睡觉">
+                </div>
+                <div class="gallery-item" onclick="openLightbox('https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=cute%20orange%20kitten%20playing%20with%20yarn%2C%20cartoon%20style%2C%20warm%20colors&image_size=square')">
+                    <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=cute%20orange%20kitten%20playing%20with%20yarn%2C%20cartoon%20style%2C%20warm%20colors&image_size=square" alt="奔奔玩毛线">
+                </div>
+                <div class="gallery-item" onclick="openLightbox('https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=cute%20orange%20kitten%20eating%20food%2C%20cartoon%20style%2C%20warm%20colors&image_size=square')">
+                    <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=cute%20orange%20kitten%20eating%20food%2C%20cartoon%20style%2C%20warm%20colors&image_size=square" alt="奔奔吃饭">
+                </div>
+                <div class="gallery-item" onclick="openLightbox('https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=cute%20orange%20kitten%20sitting%20on%20windowsill%2C%20cartoon%20style%2C%20warm%20colors&image_size=square')">
+                    <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=cute%20orange%20kitten%20sitting%20on%20windowsill%2C%20cartoon%20style%2C%20warm%20colors&image_size=square" alt="奔奔看窗外">
+                </div>
+                <div class="gallery-item" onclick="openLightbox('https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=cute%20orange%20kitten%20lying%20on%20bed%2C%20cartoon%20style%2C%20warm%20colors&image_size=square')">
+                    <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=cute%20orange%20kitten%20lying%20on%20bed%2C%20cartoon%20style%2C%20warm%20colors&image_size=square" alt="奔奔在床上">
+                </div>
+                <div class="gallery-item" onclick="openLightbox('https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=cute%20orange%20kitten%20with%20ball%2C%20cartoon%20style%2C%20warm%20colors&image_size=square')">
+                    <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=cute%20orange%20kitten%20with%20ball%2C%20cartoon%20style%2C%20warm%20colors&image_size=square" alt="奔奔玩球">
+                </div>
+                <div class="gallery-item" onclick="openLightbox('https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=cute%20orange%20kitten%20grooming%20itself%2C%20cartoon%20style%2C%20warm%20colors&image_size=square')">
+                    <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=cute%20orange%20kitten%20grooming%20itself%2C%20cartoon%20style%2C%20warm%20colors&image_size=square" alt="奔奔舔毛">
+                </div>
+                <div class="gallery-item" onclick="openLightbox('https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=cute%20orange%20kitten%20with%20human%20child%2C%20cartoon%20style%2C%20warm%20colors&image_size=square')">
+                    <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=cute%20orange%20kitten%20with%20human%20child%2C%20cartoon%20style%2C%20warm%20colors&image_size=square" alt="我和奔奔">
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 关于我 -->
+    <section id="about-me" class="about-me">
+        <div class="container">
+            <h2 class="section-title">关于我</h2>
+            <div class="about-me-card">
+                <h3>👧 我的小档案</h3>
+                <p><strong>年龄：</strong>10岁</p>
+                <p><strong>爱好：</strong>画画、看书、和奔奔玩</p>
+                <p><strong>愿望：</strong>和奔奔一直开心长大</p>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 底部 -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p>我和奔奔的小世界 ❤️</p>
+            <p>© 2026 我的成长网站</p>
+        </div>
+    </footer>
+    
+    <!-- 灯箱 -->
+    <div class="lightbox" id="lightbox">
+        <span class="lightbox-close" onclick="closeLightbox()">&times;</span>
+        <div class="lightbox-content">
+            <img id="lightbox-img" src="" alt="">
+        </div>
+    </div>
+</body>
+</html>
